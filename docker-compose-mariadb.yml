@@ -1,30 +1,31 @@
----
+version: '3.5'
+
 services:
     mariadb:
         container_name: db
-        #restart: always
         image: mariadb:latest
-        restart: always
+        restart: unless-stopped
         volumes:
-            - ./db/mariadb/mariadb-data:/var/lib/mysql
+            - mariadb:/var/lib/mysql
         ports:
             - 3306:3306
         environment:
-            MYSQL_ROOT_PASSWORD: ${MARIADBPASSWORD}
-            MYSQL_DATABASE: ${DB_PRUEBA}
+            MYSQL_ROOT_PASSWORD: ${MARIADB_PASSWORD}
+            MYSQL_DATABASE: ${DB_NAME}
         networks: 
             docker_net:         
               ipv4_address: 10.10.255.2
 
     phpmyadmin:
-        container_name: admin
-        restart: always
+        container_name: phpmyadmin
+        restart: unless-stopped
         image: phpmyadmin/phpmyadmin:latest
         ports:
             - 8000:80
         environment:
-            - PMA_ARBITRARY=1
-            - PMA_HOST=mariadb
+             PMA_ARBITRARY: 1
+             PMA_HOST: mariadb
+             PMA_PORT: 3306
         depends_on:
             - mariadb
         networks: 
@@ -36,4 +37,6 @@ networks:
      ipam:
          config:
              - subnet: 10.10.255.0/29
-...
+
+volumes:
+   mariadb:
