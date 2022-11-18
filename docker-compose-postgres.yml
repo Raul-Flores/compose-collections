@@ -1,33 +1,36 @@
+version: '3.5'
+
 services:
     db:
       container_name: postgresdb
-      image: postgres
-      #restart: always
-      volumes:
-        - ./db/postgres/pgdata:/var/lib/postgresql/data
-        - ./db/postgres/backps:/backups
+      image: postgres:latest
       ports: 
         - 5432:5432
+      restart: unless-stopped
       environment:
-        - LC_ALL=C.UTF-8
-        - POSTGRES_USER=${POSTGRES_USER}
-        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-        - POSTGRES_DB=${DB_PRUEBA}
+         LC_ALL: C.UTF-8
+         POSTGRES_USER: ${POSTGRES_USER}
+         POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+         POSTGRES_DB: ${DB_NAME}
+         PGDATA: /data/postgres
+      volumes:
+        - postgres:/data/postgres
       networks: 
         net1:         
           ipv4_address: 10.10.254.2
   
     pgadmin4:
       container_name: pgadmin4
-      image: dpage/pgadmin4
+      image: dpage/pgadmin4:latest
       ports: 
         - 8080:80
+      restart: unless-stopped
       environment:
-        - LC_ALL=C.UTF-8
-        - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
-        - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+        LC_ALL: C.UTF-8
+        PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+        PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
       volumes:
-        - ./db/postgres/pgadmin//var/lib/pgadmin/
+        - pgadmin:/var/lib/pgadmin
       networks: 
         net1:         
           ipv4_address: 10.10.254.3
@@ -38,3 +41,6 @@ networks:
      ipam:
          config:
              - subnet: 10.10.254.0/29
+volumes:
+  postgres:
+  pgadmin:
